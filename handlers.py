@@ -2,12 +2,9 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-import aiohttp
 from states import Form
-import ssl
-import certifi
-
-ssl_context = ssl.create_default_context(cafile=certifi.where())
+import re
+from helpers import fetch_product_data
 
 router = Router()
 
@@ -26,6 +23,8 @@ async def help_command(message: Message):
                         "/set_profile - Установить данные о себе\n"
                         "/log_water - Записать информацию о потреблении воды\n"
                         "/log_food - Записать информацию о потреблении еды\n"
+                        "/log_workout - Записать информацию о занятиях\n"
+                        "/check_progress - Узнать прогресс\n"
                         )
 
 
@@ -84,36 +83,62 @@ async def start_form_log_water(message: Message, state: FSMContext):
 
 # Обработчик команды /log_food
 @router.message(Command("log_food"))
-async def start_form_log_food(message: Message, state: FSMContext):
+async def start_form_log_food(message: Message):
     text = message.text
     try:
         food_item = text.split(maxsplit=1)[1]
+        print(food_item, "food_item log_food")  # Debugging line
+
+        # Проверяем, содержит ли ввод только английские символы
+        if not re.match(r'^[a-zA-Z\s]+$', food_item):
+            await message.reply("Название продукта должно содержать только английские буквы! Пример: /log_food banana")
+            return None
     except IndexError:
-        await message.reply("Вы не указали продукт! Пример: /log_food banan")
-        return
+        await message.reply("Вы не указали продукт! Пример: /log_food banana")
+        return None
 
     try:
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
-            async with session.get(f"https://world.openfoodfacts.org/cgi/search.pl?action=process&search_terms={food_item}&json=true") as response:
-                if response.status == 200:
-                    data = await response.json()
-                    if data.get('products'):
-                        product = data['products'][0]
-                        product_name = product.get('product_name', 'Неизвестно')
-                        nutrition_grades = product.get('nutrition_grades', 'Неизвестно')
-                        energy_kcal = product.get('nutriments', {}).get('energy-kcal_100g', 'Неизвестно')
+        product = await fetch_product_data(food_item)
+        if product:
+            product_name = product.get('product_name', 'Неизвестно')
+            energy_kcal = product.get('nutriments', {}).get('energy-kcal_100g', 'Неизвестно')
 
-                        # Формируем ответ
-                        response_text = (
-                            f"Продукт: {product_name}\n"
-                            f"Класс питания: {nutrition_grades}\n"
-                            f"Калории: {energy_kcal}"
-                        )
-                        await message.reply(f"Твой продукт {response_text}")
-                    else:
-                        await message.reply("Продукт не найден.")
-                else:
-                    await message.reply("Ошибка при получении данных о продукте")
+            response_text = (
+                f"Продукт: {product_name}\n"
+                f"Калории: {energy_kcal}"
+            )
+            await message.reply(f"Твой продукт {response_text}")
+        else:
+            await message.reply("Продукт не найден.")
+        return None
     except Exception as e:
         print(e, "error log_food")
         await message.reply("Ошибка при получении данных о продукте")
+        return None
+
+
+# Обработчик команды /log_workout
+@router.message(Command("log_workout"))
+async def start_form_log_workout(message: Message, state: FSMContext):
+    progress_text = (
+        "🏃‍♂️ Бег 30 минут — 300 ккал. Дополнительно: выпейте 200 мл воды."
+    )
+
+    await message.reply(progress_text, parse_mode="Markdown")
+
+
+# Обработчик команды /check_progress
+@router.message(Command("check_progress"))
+async def start_form_check_progress(message: Message, state: FSMContext):
+    progress_text = (
+        "📊 *Прогресс:*\n"
+        "*Вода:*\n"
+        f"- Выпито: {1500} мл из {2400} мл.\n"
+        f"- Осталось: {2400 - 1500} мл.\n\n"
+        "*Калории:*\n"
+        f"- Потреблено: {1800} ккал из {2500} ккал.\n"
+        f"- Сожжено: {400} ккал.\n"
+        f"- Баланс: {1800 - 400} ккал."
+    )
+
+    await message.reply(progress_text, parse_mode="Markdown")
