@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c7b45f50-798e-4e6c-b671-c1f620650244" name="Changes" comment="Added new Handlers for bot">
+    <list default="true" id="c7b45f50-798e-4e6c-b671-c1f620650244" name="Changes" comment="Added chart for tg">
+      <change beforePath="$PROJECT_DIR$/.Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/middlewares.py" beforeDir="false" afterPath="$PROJECT_DIR$/middlewares.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,40 +24,40 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Vladislav747"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Vladislav747&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Vladislav747/telegram-bot-hw2.git",
-    "accountId": "63e27fbf-4b15-4dac-b727-6183db54f861"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Vladislav747/telegram-bot-hw2.git&quot;,
+    &quot;accountId&quot;: &quot;63e27fbf-4b15-4dac-b727-6183db54f861&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="2rzlwgYUy1Wq6nhTwyZaM1sjCbI" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/Users/vlad/PycharmProjects/telegram-bot-hw2",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/vlad/PycharmProjects/telegram-bot-hw2&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -78,7 +79,9 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1737570024676</updated>
-      <workItem from="1737570026452" duration="20913000" />
+      <workItem from="1737570026452" duration="32791000" />
+      <workItem from="1737647117909" duration="615000" />
+      <workItem from="1737647789039" duration="757000" />
     </task>
     <task id="LOCAL-00001" summary="init bot">
       <option name="closed" value="true" />
@@ -120,7 +123,31 @@
       <option name="project" value="LOCAL" />
       <updated>1737620386430</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added new Handlers for bot">
+      <option name="closed" value="true" />
+      <created>1737638017566</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1737638017566</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added new Handlers for bot">
+      <option name="closed" value="true" />
+      <created>1737639035975</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1737639035975</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Added chart for tg">
+      <option name="closed" value="true" />
+      <created>1737645978818</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1737645978818</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -130,6 +157,7 @@
     <MESSAGE value="init bot" />
     <MESSAGE value="Added States and new Handlers for bot" />
     <MESSAGE value="Added new Handlers for bot" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added new Handlers for bot" />
+    <MESSAGE value="Added chart for tg" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added chart for tg" />
   </component>
 </project>
