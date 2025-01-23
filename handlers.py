@@ -1,8 +1,13 @@
-import math
+import io
 import random
 
+# для считывания данных и построения графиков
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from aiogram import Router
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from states import Form
@@ -201,11 +206,13 @@ async def start_form_check_progress(message: Message, state: FSMContext):
         return None
     user_data = users[user_id]
 
+    is_enough_water = f"Норма воды выполнена" if user_data['logged_water'] > user_data['water_goal'] else f"Осталось: {user_data['water_goal'] - user_data['logged_water']} мл."
+
     progress_text = (
         "📊 *Прогресс:*\n"
         "*Вода:*\n"
         f"- Выпито: {user_data['logged_water']} мл из {user_data['water_goal']} мл.\n"
-        f"- Осталось: {user_data['water_goal'] - user_data['logged_water']} мл.\n\n"
+        f"- {is_enough_water} \n\n"
         "*Калории:*\n"
         f"- Потреблено: {user_data['logged_calories']} ккал из {user_data['calorie_goal']} ккал.\n"
         f"- Сожжено: {user_data['burned_calories']} ккал.\n"
@@ -213,3 +220,30 @@ async def start_form_check_progress(message: Message, state: FSMContext):
     )
 
     await message.reply(progress_text, parse_mode="Markdown")
+    chart_filepath = send_progress_chart(user_data['logged_calories'], user_data['burned_calories'])
+    await message.reply_photo(photo=FSInputFile(chart_filepath), caption="Ваш прогресс по калориям 📊")
+
+
+def send_progress_chart(logged_calories, burned_calories):
+
+    # Данные для графика
+    data = {
+        'labels': ['Потреблено калорий', 'Сожжено калорий'],
+        'values': [int(logged_calories), int(burned_calories)],  # Пример значений
+    }
+    df = pd.DataFrame(data)
+
+    plt.figure()
+    sns.set(rc={'figure.figsize': (8, 6)})  # Размер графика
+    sns.barplot(x='labels', y='values', data=df, palette="viridis")
+
+    # Настройки для отображения
+    plt.title("График калорий")
+    plt.xlabel("Категории", fontsize=12)
+    plt.ylabel("Значения (ккал)", fontsize=12)
+    plt.xticks(rotation=0, fontsize=10)
+    plt.tight_layout()
+
+    plt.savefig('plot_name.png', dpi=300)
+    filename = 'plot_name.png'
+    return filename

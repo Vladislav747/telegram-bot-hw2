@@ -11,7 +11,7 @@ dp.message.middleware(LoggingMiddleware())
 
 
 async def main():
-    print("Water Bot is running...")
+    print("Бот запущен")
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
