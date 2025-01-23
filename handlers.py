@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from states import Form
 import re
-from helpers import get_food_info, calc_calories, calc_water_goal, get_current_temperature
+from helpers import get_food_info, calc_calories, calc_water_goal, get_current_temperature, check_user
 
 router = Router()
 
@@ -95,23 +95,36 @@ async def process_city(message: Message, state: FSMContext):
 
 # Обработчик команды /log_water
 @router.message(Command("log_water"))
-async def start_form_log_water(message: Message, state: FSMContext):
-    await message.reply("Введите сколько вы выпили воды за день?(мл):")
-    await state.set_state(Form.water_volume)
+async def start_form_log_water(message: Message):
+    user_id = await check_user(message, users)
+    if user_id is None:
+        return None
+    try:
+        text = message.text
+        user_data = users[user_id]
+        water_volume = text.split(maxsplit=1)[1]
 
-
-@router.message(Form.water_volume)
-async def start_form_log_water(message: Message, state: FSMContext):
-    data = await state.get_data()
-    water_volume = data.get("water_volume")
-    calc_water = int(water_volume) * 0.001
-    await message.reply(f"Выпито воды: {calc_water} мл")
+        logged_water = user_data["logged_water"] + int(water_volume)
+        water_goal = user_data["water_goal"]
+        calculated_water = water_goal - logged_water
+        if logged_water > water_goal or calculated_water < 0:
+            await message.reply("Вы выполнили норму потребления воды!")
+            return None
+        users[user_id]["logged_water"] = water_goal if logged_water >= water_goal else logged_water
+        await message.reply(f"Нужно выпить еще до нормы: {calculated_water} мл")
+    except Exception as e:
+        print(f"Ошибка при добавлении воды: {e}")
+        await message.reply("Произошла ошибка при добавлении воды")
+    return None
 
 
 # Обработчик команды /log_food
 @router.message(Command("log_food"))
 async def start_form_log_food(message: Message):
     text = message.text
+    user_id = await check_user(message, users)
+    if user_id is None:
+        return None
     try:
         food_item = text.split(maxsplit=1)[1]
         print(food_item, "food_item log_food")  # Debugging line
@@ -134,6 +147,7 @@ async def start_form_log_food(message: Message):
                 f"Продукт: {product_name}\n"
                 f"Калории: {energy_kcal}"
             )
+            users[user_id]["logged_calories"] = users[user_id]["logged_calories"] + energy_kcal
             await message.reply(f"Твой продукт {response_text}")
         else:
             await message.reply("Продукт не найден.")
@@ -171,15 +185,20 @@ async def start_form_log_workout(message: Message, state: FSMContext):
 # Обработчик команды /check_progress
 @router.message(Command("check_progress"))
 async def start_form_check_progress(message: Message, state: FSMContext):
+    user_id = await check_user(message, users)
+    if user_id is None:
+        return None
+    user_data = users[user_id]
+
     progress_text = (
         "📊 *Прогресс:*\n"
         "*Вода:*\n"
-        f"- Выпито: {1500} мл из {2400} мл.\n"
-        f"- Осталось: {2400 - 1500} мл.\n\n"
+        f"- Выпито: {user_data['logged_water']} мл из {user_data['water_goal']} мл.\n"
+        f"- Осталось: {user_data['water_goal'] - user_data['logged_water']} мл.\n\n"
         "*Калории:*\n"
-        f"- Потреблено: {1800} ккал из {2500} ккал.\n"
-        f"- Сожжено: {400} ккал.\n"
-        f"- Баланс: {1800 - 400} ккал."
+        f"- Потреблено: {user_data['logged_calories']} ккал из {user_data['calorie_goal']} ккал.\n"
+        f"- Сожжено: {user_data['burned_calories']} ккал.\n"
+        f"- Баланс: {user_data['logged_calories'] - user_data['burned_calories']} ккал."
     )
 
     await message.reply(progress_text, parse_mode="Markdown")

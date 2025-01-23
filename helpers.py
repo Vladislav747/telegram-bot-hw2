@@ -1,5 +1,8 @@
 import aiohttp
 import math
+
+from aiogram.types import Message
+
 from config import WEATHER_API_KEY
 
 food_api_url = "https://world.openfoodfacts.org/cgi/search.pl"
@@ -33,7 +36,7 @@ def calc_water_goal(weight, weather_temp):
     # +500−1000мл  за жаркую погоду (> 25°C).
     is_weather_hot_bonus = 500 if weather_temp > 25 else 0
 
-    return int(weight)*30 + int(is_weather_hot_bonus)
+    return int(weight) * 30 + int(is_weather_hot_bonus)
 
 
 async def get_current_temperature(city):
@@ -56,3 +59,11 @@ async def get_current_temperature(city):
     except Exception as e:
         print(f"Ошибка при запросе к API OpenWeatherApi: {e}")
         return None
+
+
+async def check_user(message: Message, users: dict) -> int or None:
+    user_id = message.from_user.id
+    if user_id not in users:
+        await message.reply("Вы не установили свои данные! Пожалуйста, введите /set_profile")
+        return None
+    return user_id
