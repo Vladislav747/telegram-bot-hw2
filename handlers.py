@@ -1,10 +1,13 @@
+import math
+import random
+
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from states import Form
 import re
-from helpers import get_food_info, calc_calories, calc_water_goal, get_current_temperature, check_user
+from helpers import get_food_info, calc_calories, calc_water_goal, get_current_temperature, check_user, calc_calories_burned
 
 router = Router()
 
@@ -161,6 +164,9 @@ async def start_form_log_food(message: Message):
 # Обработчик команды /log_workout
 @router.message(Command("log_workout"))
 async def start_form_log_workout(message: Message, state: FSMContext):
+    user_id = await check_user(message, users)
+    if user_id is None:
+        return None
     text = message.text
     parts = text.split(maxsplit=2)
 
@@ -170,14 +176,19 @@ async def start_form_log_workout(message: Message, state: FSMContext):
         await message.reply("Время занятия должно быть числом! Пример: /log_workout бег 30")
         return None
     activity = parts[1]
-    if type(activity) is str:
+    if type(activity) is not str:
         await message.reply("Спортивная активная должна быть строкой! Пример: /log_workout бег 30")
         return None
 
-    print(f"log_workout длительность-{duration}, activity-{activity}")  # Debugging line
+    calories_burned_total = calc_calories_burned(duration)
+    needed_water_volume = random.randint(100, 200)
+
+    print(f"log_workout длительность-{duration}, activity-{activity} - Сожжено {calories_burned_total} ккал")  # Debugging line
     progress_text = (
-        f"🏃‍♂️ {activity} {duration} минут — 300 ккал. Дополнительно: выпейте 200 мл воды."
+        f"🏃‍♂️ {activity} {duration} минут — {calories_burned_total} ккал. Дополнительно: выпейте {needed_water_volume} мл воды."
     )
+
+    users[user_id]["burned_calories"] = users[user_id]["burned_calories"] + calories_burned_total
 
     await message.reply(progress_text, parse_mode="Markdown")
 

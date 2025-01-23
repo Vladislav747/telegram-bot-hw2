@@ -1,5 +1,6 @@
 import aiohttp
 import math
+import random
 
 from aiogram.types import Message
 
@@ -67,3 +68,12 @@ async def check_user(message: Message, users: dict) -> int or None:
         await message.reply("Вы не установили свои данные! Пожалуйста, введите /set_profile")
         return None
     return user_id
+
+
+def calc_calories_burned(duration):
+    """
+    Подсчет потраченных калорий в зависимости от активности и веса.
+    """
+    calories_burned_activity = random.randint(200, 500)
+    convert_minutes = duration / 60
+    return math.ceil(calories_burned_activity * convert_minutes)
