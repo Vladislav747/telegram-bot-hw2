@@ -4,9 +4,12 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from states import Form
 import re
-from helpers import fetch_product_data
+from helpers import fetch_product_data, calc_calories, calc_water_goal
 
 router = Router()
+
+# Словарь для хранения информации о пользователях
+users = {}
 
 
 # Обработчик команды /start
@@ -31,39 +34,60 @@ async def help_command(message: Message):
 # Обработчик команды /set_profile
 @router.message(Command("set_profile"))
 async def start_form(message: Message, state: FSMContext):
+    await state.update_data(user_id=message.from_user.id)
     await message.reply("Введите ваш вес (в кг):")
     await state.set_state(Form.weight)
 
 
 @router.message(Form.weight)
 async def process_weight(message: Message, state: FSMContext):
-    await state.update_data(name=message.text)
     await message.reply("Введите ваш рост (в см):")
     await state.set_state(Form.height)
+    await state.update_data(weight=message.text)
 
 
 @router.message(Form.height)
 async def process_height(message: Message, state: FSMContext):
     await message.reply("Введите ваш возраст:")
     await state.set_state(Form.age)
+    await state.update_data(height=message.text)
 
 
 @router.message(Form.age)
 async def process_age(message: Message, state: FSMContext):
     await message.reply("Сколько минут активности у вас в день?")
     await state.set_state(Form.activity_time)
+    await state.update_data(age=message.text)
 
 
 @router.message(Form.activity_time)
 async def process_activity(message: Message, state: FSMContext):
     await message.reply("В каком городе вы находитесь?")
     await state.set_state(Form.city)
+    await state.update_data(activity_time=message.text)
 
 
-@router.message(Form.activity_time)
-async def process_activity(message: Message, state: FSMContext):
-    await message.reply("В каком городе вы находитесь?")
-    await state.set_state(Form.city)
+@router.message(Form.city)
+async def process_city(message: Message, state: FSMContext):
+    await state.update_data(city=message.text)
+    data = await state.get_data()
+    user_id = data["user_id"]
+
+    users[user_id] = {
+        "weight": data["weight"],
+        "height": data["height"],
+        "age": data["age"],
+        "activity": data["activity_time"],
+        "city": data["city"],
+        "water_goal": calc_water_goal(data["weight"], 1500),
+        "calorie_goal": calc_calories(data["weight"], data["height"], data["age"]),
+        "logged_water": 0,
+        "logged_calories": 0,
+        "burned_calories": 0,
+    }
+    print(f"Saved users {users}")# Debugging line
+    await message.reply("Ваши данные успешно сохранены!")
+    await state.clear()
 
 
 # Обработчик команды /log_water
@@ -120,8 +144,22 @@ async def start_form_log_food(message: Message):
 # Обработчик команды /log_workout
 @router.message(Command("log_workout"))
 async def start_form_log_workout(message: Message, state: FSMContext):
+    text = message.text
+    parts = text.split(maxsplit=2)
+
+    try:
+        duration = int(parts[2])
+    except ValueError:
+        await message.reply("Время занятия должно быть числом! Пример: /log_workout бег 30")
+        return None
+    activity = parts[1]
+    if type(activity) is str:
+        await message.reply("Спортивная активная должна быть строкой! Пример: /log_workout бег 30")
+        return None
+
+    print(f"log_workout длительность-{duration}, activity-{activity}")  # Debugging line
     progress_text = (
-        "🏃‍♂️ Бег 30 минут — 300 ккал. Дополнительно: выпейте 200 мл воды."
+        f"🏃‍♂️ {activity} {duration} минут — 300 ккал. Дополнительно: выпейте 200 мл воды."
     )
 
     await message.reply(progress_text, parse_mode="Markdown")
