@@ -1,4 +1,3 @@
-import io
 import random
 
 # для считывания данных и построения графиков
@@ -12,7 +11,13 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from states import Form
 import re
-from helpers import get_food_info, calc_calories, calc_water_goal, get_current_temperature, check_user, calc_calories_burned
+from helpers import (
+    get_food_info,
+    calc_calories,
+    calc_water_goal,
+    get_current_temperature,
+    check_user, calc_calories_burned
+)
 
 router = Router()
 
@@ -30,11 +35,10 @@ async def start_command(message: Message):
 @router.message(Command("help"))
 async def help_command(message: Message):
     await message.reply("Доступные команды:\n"
-                        "/start - начать работу с ботом\n"
                         "/set_profile - Установить данные о себе\n"
-                        "/log_water - Записать информацию о потреблении воды\n"
-                        "/log_food - Записать информацию о потреблении еды\n"
-                        "/log_workout - Записать информацию о занятиях\n"
+                        "/log_water 30 - Записать информацию о потреблении воды\n"
+                        "/log_food banana - Записать информацию о потреблении еды\n"
+                        "/log_workout бег 30 - Записать информацию о занятиях\n"
                         "/check_progress - Узнать прогресс\n"
                         )
 
@@ -82,7 +86,7 @@ async def process_city(message: Message, state: FSMContext):
     user_id = data["user_id"]
 
     temperature = await get_current_temperature(data["city"])
-    print(f"Temperature in {data['city']}: {temperature}")# Debugging line
+    print(f"Temperature in {data['city']}: {temperature}")
 
     users[user_id] = {
         "weight": data["weight"],
@@ -96,7 +100,7 @@ async def process_city(message: Message, state: FSMContext):
         "logged_calories": 0,
         "burned_calories": 0,
     }
-    print(f"Saved users {users}")# Debugging line
+    print(f"Saved users {users}")
     await message.reply("Ваши данные успешно сохранены!")
     await state.clear()
 
@@ -139,7 +143,10 @@ async def start_form_log_food(message: Message):
 
         # Проверяем, содержит ли ввод только английские символы
         if not re.match(r'^[a-zA-Z\s]+$', food_item):
-            await message.reply("Название продукта должно содержать только английские буквы! Пример: /log_food banana")
+            await message.reply("Название продукта "
+                                "должно содержать только "
+                                "английские буквы! Пример: /log_food banana"
+                                )
             return None
     except IndexError:
         await message.reply("Вы не указали продукт! Пример: /log_food banana")
@@ -206,7 +213,7 @@ async def start_form_check_progress(message: Message, state: FSMContext):
         return None
     user_data = users[user_id]
 
-    is_enough_water = f"Норма воды выполнена" if user_data['logged_water'] > user_data['water_goal'] else f"Осталось: {user_data['water_goal'] - user_data['logged_water']} мл."
+    is_enough_water = "Норма воды выполнена" if user_data['logged_water'] > user_data['water_goal'] else f"Осталось: {user_data['water_goal'] - user_data['logged_water']} мл."
 
     progress_text = (
         "📊 *Прогресс:*\n"
