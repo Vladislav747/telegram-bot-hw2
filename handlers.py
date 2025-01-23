@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from states import Form
 import re
-from helpers import fetch_product_data, calc_calories, calc_water_goal
+from helpers import get_food_info, calc_calories, calc_water_goal, get_current_temperature
 
 router = Router()
 
@@ -73,13 +73,16 @@ async def process_city(message: Message, state: FSMContext):
     data = await state.get_data()
     user_id = data["user_id"]
 
+    temperature = await get_current_temperature(data["city"])
+    print(f"Temperature in {data['city']}: {temperature}")# Debugging line
+
     users[user_id] = {
         "weight": data["weight"],
         "height": data["height"],
         "age": data["age"],
         "activity": data["activity_time"],
         "city": data["city"],
-        "water_goal": calc_water_goal(data["weight"], 1500),
+        "water_goal": calc_water_goal(data["weight"], temperature),
         "calorie_goal": calc_calories(data["weight"], data["height"], data["age"]),
         "logged_water": 0,
         "logged_calories": 0,
@@ -122,7 +125,7 @@ async def start_form_log_food(message: Message):
         return None
 
     try:
-        product = await fetch_product_data(food_item)
+        product = await get_food_info(food_item)
         if product:
             product_name = product.get('product_name', 'Неизвестно')
             energy_kcal = product.get('nutriments', {}).get('energy-kcal_100g', 'Неизвестно')
